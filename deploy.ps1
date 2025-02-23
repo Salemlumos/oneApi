@@ -89,7 +89,6 @@ _NCrunch_*
 *.ldf
 
 # Sensitive files
-appsettings.Development.json
 appsettings.Production.json
 *.secret.json
 secrets.json
@@ -106,14 +105,32 @@ Log/
 
 # Function to update database connection string
 function Update-DbConnection {
-    if (Test-Path "appsettings.json") {
-        $settings = Get-Content "appsettings.json" -Raw | ConvertFrom-Json
-        $settings.ConnectionStrings.DefaultConnection = $DbConnection
-        $settings | ConvertTo-Json -Depth 10 | Set-Content "appsettings.json"
-        Write-Host "${Green}Database connection string updated${NC}"
+    # First check for appsettings.Development.json
+    $settingsPath = "appsettings.Development.json"
+    if (-not (Test-Path $settingsPath)) {
+        $settingsPath = "appsettings.json"
+    }
+    
+    if (Test-Path $settingsPath) {
+        $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+        
+        # Check if ConnectionStrings exists, if not create it
+        if (-not (Get-Member -InputObject $settings -Name "ConnectionStrings" -MemberType Properties)) {
+            $settings | Add-Member -Name "ConnectionStrings" -Value ([PSCustomObject]@{}) -MemberType NoteProperty
+        }
+        
+        # Add or update Development connection
+        if (-not (Get-Member -InputObject $settings.ConnectionStrings -Name "Development" -MemberType Properties)) {
+            $settings.ConnectionStrings | Add-Member -Name "Development" -Value $DbConnection -MemberType NoteProperty
+        } else {
+            $settings.ConnectionStrings.Development = $DbConnection
+        }
+
+        $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath
+        Write-Host "${Green}Database connection string updated in $settingsPath${NC}"
     }
     else {
-        Write-Host "${Red}Error: appsettings.json not found${NC}"
+        Write-Host "${Red}Error: No appsettings files found${NC}"
         exit 1
     }
 }

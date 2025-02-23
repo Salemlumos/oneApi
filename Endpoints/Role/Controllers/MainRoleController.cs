@@ -11,7 +11,7 @@ namespace Endpoints.Controllers
     {
         private readonly RoleService _roleService;
 
-        public RoleController(RoleService roleService)
+        public MainRoleController(RoleService roleService)
         {
             _roleService = roleService;
         }
@@ -40,7 +40,7 @@ namespace Endpoints.Controllers
                 return NotFound();
             }
 
-            var roleDto = new RoleDto
+            var roleDto = new GetRoleDto
             {
                 Id = role.Id,
                 Name = role.Name
@@ -51,7 +51,7 @@ namespace Endpoints.Controllers
 
         // POST: api/role
         [HttpPost]
-        public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleDto roleDto)
+        public async Task<ActionResult<GetRoleDto>> CreateRole(CreateRoleDto roleDto)
         {
             var role = new Role
             {
@@ -65,7 +65,7 @@ namespace Endpoints.Controllers
 
         // PUT: api/role/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<RoleDto>> UpdateRole(int id, RoleDto roleDto)
+        public async Task<ActionResult<GetRoleDto>> UpdateRole(int id,UpdateRoleDto roleDto)
         {
             var role = new Role
             {

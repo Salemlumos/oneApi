@@ -69,7 +69,6 @@ _NCrunch_*
 *.ldf
 
 # Sensitive files
-appsettings.Development.json
 appsettings.Production.json
 *.secret.json
 secrets.json
